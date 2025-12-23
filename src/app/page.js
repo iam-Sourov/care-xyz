@@ -1,65 +1,124 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function Home() {
+async function getServices() {
+  const { MongoClient } = require("mongodb");
+  const client = new MongoClient(process.env.MONGODB_URI);
+  await client.connect();
+  const db = client.db("care-xyz-db");
+  const services = await db.collection("services").find({}).toArray();
+  return services.map(service => ({
+    ...service,
+    _id: service._id.toString(),
+  }));
+}
+
+export default async function Home() {
+  const services = await getServices();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col min-h-screen">
+      <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-primary/5">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                Reliable Care for Your Loved Ones
+              </h1>
+              <p className="mx-auto max-w-175 text-gray-500 md:text-xl dark:text-gray-400">
+                Professional babysitting, elderly assistance, and special needs care.
+                Trusted professionals at your doorstep.
+              </p>
+            </div>
+            <div className="space-x-4">
+              <Button asChild size="lg">
+                <Link href="#services">Book a Service</Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/about">Learn More</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section id="services" className="w-full py-12 md:py-24 lg:py-32 bg-white">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Our Services</h2>
+              <p className="max-w-225 text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+                Choose from our wide range of professional care options designed for your familys needs.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+              <Card key={service._id} className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <img
+                    src={service.image}
+                    alt={service.serviceName}
+                    className="w-full h-48 object-cover rounded-md mb-4"/>
+                  <CardTitle>{service.serviceName}</CardTitle>
+                  <CardDescription className="text-primary font-semibold">
+                    ${service.price} / hour
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 line-clamp-3">
+                    {service.description}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full" asChild>
+                    <Link href={`/services/${service._id}`}>View Details</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+      <section className="w-full py-12 md:py-24 bg-gray-100">
+        <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6 lg:gap-10">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Trusted by 10,000+ Families
+            </h2>
+            <p className="mx-auto max-w-150 text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              We ensure every caregiver is vetted, background-checked, and certified.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-8">
+            <div className="flex flex-col items-center">
+              <h3 className="text-4xl font-bold text-primary">500+</h3>
+              <p className="text-sm text-gray-500">Caregivers</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <h3 className="text-4xl font-bold text-primary">98%</h3>
+              <p className="text-sm text-gray-500">Satisfaction</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <h3 className="text-4xl font-bold text-primary">24/7</h3>
+              <p className="text-sm text-gray-500">Support</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <h3 className="text-4xl font-bold text-primary">10k+</h3>
+              <p className="text-sm text-gray-500">Bookings</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
