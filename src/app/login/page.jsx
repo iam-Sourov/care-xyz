@@ -29,7 +29,12 @@ function LoginContent() {
       await signIn(email, password);
       router.push(redirectPath);
     } catch (err) {
-      setError("Invalid email or password.");
+      console.error(err);
+      if (err.code === "auth/invalid-credential") {
+        setError("Incorrect email or password.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
       setLoading(false);
     }
   };
