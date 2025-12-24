@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext } from "react";
+import { useState, useContext, Suspense } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
-export default function Login() {
+function LoginContent() {
   const { signIn, googleSignIn } = useContext(AuthContext);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,7 +41,6 @@ export default function Login() {
       setError("Google Login Failed");
     }
   };
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
       <Card className="w-full max-w-md shadow-lg">
@@ -62,7 +62,13 @@ export default function Login() {
             </div>
             {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
           <div className="relative">
@@ -83,5 +89,13 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
