@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, MapPin, Clock } from "lucide-react";
 
 export async function generateMetadata({ params }) {
-  const { id } = params;
+  // FIX 1: Add 'await' here
+  const { id } = await params; 
+  
   if (!ObjectId.isValid(id)) return { title: "Not Found" };
 
   const client = await clientPromise;
@@ -20,8 +22,11 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ServiceDetails({ params }) {
-  const { id } = params;
+  // FIX 2: Add 'await' here as well
+  const { id } = await params; 
+
   if (!ObjectId.isValid(id)) return notFound();
+  
   const client = await clientPromise;
   const db = client.db("care-xyz-db");
   const service = await db.collection("services").findOne({ _id: new ObjectId(id) });
@@ -39,7 +44,8 @@ export default async function ServiceDetails({ params }) {
           <img
             src={service.image}
             alt={service.serviceName}
-            className="w-full h-100 object-cover"/>
+            className="w-full h-100 object-cover"
+          />
         </div>
         <div className="flex flex-col justify-center space-y-6">
           <div>

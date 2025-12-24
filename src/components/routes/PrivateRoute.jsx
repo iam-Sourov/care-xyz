@@ -1,5 +1,6 @@
 "use client";
-import { useContext } from "react";
+
+import { useContext, useEffect } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -8,14 +9,22 @@ export default function PrivateRoute({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push(`/login?redirect=${pathname}`);
+    }
+  }, [user, loading, router, pathname]);
+
   if (loading) {
-    return <div className="flex justify-center items-center h-screen"><span className="loading loading-spinner loading-lg"></span></div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
   }
 
-  if (!user) {
-    router.push(`/login?redirect=${pathname}`);
-    return null;
+  if (user) {
+    return children;
   }
-
-  return children;
+  return null;
 }

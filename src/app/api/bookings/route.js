@@ -3,20 +3,27 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import nodemailer from "nodemailer";
 
+// CRITICAL FIX: Forces the API to always fetch fresh data (no caching)
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
   try {
+    // Robust URL parsing for Next.js 16
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
 
     if (!email) {
       return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
+
     const client = await clientPromise;
     const db = client.db("care-xyz-db");
+
     const bookings = await db.collection("bookings")
       .find({ userEmail: email })
-      .sort({ date: -1 })
+      .sort({ date: -1 }) // Sort by newest date
       .toArray();
+
     return NextResponse.json(bookings);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -37,6 +44,7 @@ export async function POST(request) {
 
     const result = await db.collection("bookings").insertOne(bookingData);
 
+    // Email Sending Logic
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -100,7 +108,6 @@ export async function POST(request) {
   }
 }
 
-
 export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -109,11 +116,13 @@ export async function DELETE(request) {
     if (!id) {
       return NextResponse.json({ error: "ID required" }, { status: 400 });
     }
+
     const client = await clientPromise;
     const db = client.db("care-xyz-db");
     const result = await db.collection("bookings").deleteOne({
       _id: new ObjectId(id)
     });
+
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
