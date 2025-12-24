@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
-import PrivateRoute from "@/components/PrivateRoute";
+import PrivateRoute from "@/components/routes/PrivateRoute";
 import Link from "next/link";
 import { Trash2, Calendar, MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
