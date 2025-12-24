@@ -2,11 +2,11 @@ import { ObjectId } from "mongodb";
 import clientPromise from "@/lib/mongodb";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock } from "lucide-react";
+import ServiceBookingSection from "@/components/ServiceClient/ServiceBookingSection"; // Import the new component
 
 export async function generateMetadata({ params }) {
-  const { id } = await params; 
+  const { id } = await params;
   if (!ObjectId.isValid(id)) return { title: "Not Found" };
 
   const client = await clientPromise;
@@ -20,10 +20,10 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ServiceDetails({ params }) {
-  const { id } = await params; 
+  const { id } = await params;
 
   if (!ObjectId.isValid(id)) return notFound();
-  
+
   const client = await clientPromise;
   const db = client.db("care-xyz-db");
   const service = await db.collection("services").findOne({ _id: new ObjectId(id) });
@@ -60,16 +60,10 @@ export default async function ServiceDetails({ params }) {
               <Clock className="w-4 h-4 mr-2 text-blue-500" /> Flexible Hours
             </div>
           </div>
-          <div className="pt-4">
-            <Button size="lg" className="w-full md:w-auto text-lg px-8" asChild>
-              <Link href={`/booking/${service._id}`}>
-                Book This Service Now
-              </Link>
-            </Button>
-            <p className="text-xs text-gray-400 mt-2">
-              * Login required to proceed
-            </p>
-          </div>
+
+          {/* Use the new component here and pass the ID */}
+          <ServiceBookingSection serviceId={service._id.toString()} />
+
         </div>
       </div>
     </div>
