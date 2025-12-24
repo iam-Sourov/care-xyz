@@ -10,21 +10,18 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 export default function BookingPage({ params }) {
-  // In Next.js 15+, params is a Promise, so we unwrap it with React.use()
   const resolvedParams = use(params);
   const id = resolvedParams.id;
 
   const { user } = useContext(AuthContext);
   const router = useRouter();
-
-  // --- State ---
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // --- Form State ---
   const [duration, setDuration] = useState(1);
   const [date, setDate] = useState("");
   const [address, setAddress] = useState({
@@ -34,12 +31,8 @@ export default function BookingPage({ params }) {
     details: ""
   });
 
-  // --- 1. Fetch Service Details ---
   useEffect(() => {
     if (!id) return;
-
-    // We fetch ALL services and find the one matching ID (Simple approach)
-    // Alternatively, you can create a specific GET /api/services/[id] route
     fetch("/api/services")
       .then((res) => res.json())
       .then((data) => {
@@ -55,13 +48,11 @@ export default function BookingPage({ params }) {
       });
   }, [id]);
 
-  // --- 2. Calculate Costs ---
   const pricePerHour = service?.price || 0;
   const totalCost = pricePerHour * duration;
   const serviceCharge = (totalCost * 0.05).toFixed(2); // 5% Platform fee
   const grandTotal = (totalCost + parseFloat(serviceCharge)).toFixed(2);
 
-  // --- 3. Handle Submit ---
   const handleBooking = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -86,14 +77,14 @@ export default function BookingPage({ params }) {
       });
 
       if (res.ok) {
-        alert("Booking Successful! Check your email invoice.");
+        toast.success("Booking Successful! Check your email invoice.");
         router.push("/my-bookings");
       } else {
-        alert("Booking failed. Please try again.");
+        toast.error("Booking failed. Please try again.");
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong.");
+      toast.error("Something went wrong.");
     } finally {
       setSubmitting(false);
     }
@@ -108,16 +99,12 @@ export default function BookingPage({ params }) {
         <h1 className="text-3xl font-bold mb-8">Complete Your Booking</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-          {/* --- LEFT: BOOKING FORM --- */}
           <Card className="md:col-span-2 shadow-md">
             <CardHeader>
               <CardTitle>Booking Details</CardTitle>
             </CardHeader>
             <CardContent>
               <form id="booking-form" onSubmit={handleBooking} className="space-y-6">
-
-                {/* Date & Duration */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Date</Label>
@@ -127,8 +114,7 @@ export default function BookingPage({ params }) {
                         type="date"
                         className="pl-9"
                         required
-                        onChange={(e) => setDate(e.target.value)}
-                      />
+                        onChange={(e) => setDate(e.target.value)}/>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -141,15 +127,11 @@ export default function BookingPage({ params }) {
                         max="24"
                         value={duration}
                         className="pl-9"
-                        onChange={(e) => setDuration(parseInt(e.target.value) || 1)}
-                      />
+                        onChange={(e) => setDuration(parseInt(e.target.value) || 1)}/>
                     </div>
                   </div>
                 </div>
-
                 <Separator />
-
-                {/* Address Section */}
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     <MapPin className="w-4 h-4" /> Location
@@ -160,8 +142,7 @@ export default function BookingPage({ params }) {
                       <select
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         required
-                        onChange={(e) => setAddress({ ...address, division: e.target.value })}
-                      >
+                        onChange={(e) => setAddress({ ...address, division: e.target.value })}>
                         <option value="">Select Division</option>
                         <option value="Dhaka">Dhaka</option>
                         <option value="Chittagong">Chittagong</option>
@@ -175,8 +156,7 @@ export default function BookingPage({ params }) {
                       <Input
                         placeholder="e.g. Narayanganj"
                         required
-                        onChange={(e) => setAddress({ ...address, district: e.target.value })}
-                      />
+                        onChange={(e) => setAddress({ ...address, district: e.target.value })}/>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -184,24 +164,20 @@ export default function BookingPage({ params }) {
                     <Input
                       placeholder="e.g. Gulshan 1, Road 12"
                       required
-                      onChange={(e) => setAddress({ ...address, area: e.target.value })}
-                    />
+                      onChange={(e) => setAddress({ ...address, area: e.target.value })}/>
                   </div>
                   <div className="space-y-2">
                     <Label>House Details</Label>
                     <Input
                       placeholder="House No, Flat No..."
                       required
-                      onChange={(e) => setAddress({ ...address, details: e.target.value })}
-                    />
+                      onChange={(e) => setAddress({ ...address, details: e.target.value })}/>
                   </div>
                 </div>
 
               </form>
             </CardContent>
           </Card>
-
-          {/* --- RIGHT: ORDER SUMMARY --- */}
           <Card className="h-fit bg-slate-50 border-primary/20 shadow-md">
             <CardHeader className="bg-white border-b">
               <CardTitle className="text-lg">Order Summary</CardTitle>

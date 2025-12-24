@@ -3,12 +3,11 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import nodemailer from "nodemailer";
 
-// CRITICAL FIX: Forces the API to always fetch fresh data (no caching)
 export const dynamic = "force-dynamic";
 
 export async function GET(request) {
   try {
-    // Robust URL parsing for Next.js 16
+
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
 
@@ -21,7 +20,7 @@ export async function GET(request) {
 
     const bookings = await db.collection("bookings")
       .find({ userEmail: email })
-      .sort({ date: -1 }) // Sort by newest date
+      .sort({ date: -1 })
       .toArray();
 
     return NextResponse.json(bookings);
@@ -44,7 +43,6 @@ export async function POST(request) {
 
     const result = await db.collection("bookings").insertOne(bookingData);
 
-    // Email Sending Logic
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {

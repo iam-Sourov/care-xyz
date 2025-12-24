@@ -3,7 +3,6 @@ import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-
 const XIcon = ({ className }) => (
   <svg 
     role="img" 

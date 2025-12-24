@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function MyBookings() {
   const { user } = useContext(AuthContext);
@@ -55,9 +56,9 @@ export default function MyBookings() {
       const res = await fetch(`/api/bookings?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         setBookings(bookings.filter((b) => b._id !== id));
-        alert("Booking cancelled successfully.");
+        toast.success("Booking cancelled successfully.");
       } else {
-        alert("Failed to cancel.");
+        toast.error("Failed to cancel.");
       }
     } catch (error) {
       console.error(error);

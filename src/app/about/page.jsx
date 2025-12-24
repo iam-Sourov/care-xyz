@@ -51,10 +51,13 @@ export default function AboutPage() {
             </Button>
           </div>
           <div className="relative h-100 bg-gray-100 rounded-2xl overflow-hidden shadow-xl">
-            <img
-              src="https://images.unsplash.com/photo-1576091160550-2187d80aeff2?q=80&w=2070&auto=format&fit=crop"
+            <Image
+              src="https://static.vecteezy.com/system/resources/previews/006/923/587/large_2x/green-hand-care-icon-logo-free-vector.jpg"
               alt="Caregivers Team"
-              className="object-cover w-full h-full"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
             />
           </div>
         </div>
@@ -66,10 +69,13 @@ export default function AboutPage() {
             {[1, 2, 3].map((item) => (
               <div key={item} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
                 <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 overflow-hidden">
-                  <img
+                  <Image
                     src={`https://i.pravatar.cc/150?img=${item + 10}`}
                     alt="Team Member"
-                    className="w-full h-full object-cover"/>
+                    width={96}
+                    height={96}
+                    className="object-cover"
+                  />
                 </div>
                 <h3 className="text-xl font-bold">Team Member {item}</h3>
                 <p className="text-primary text-sm font-medium mb-2">Co-Founder</p>

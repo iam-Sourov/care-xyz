@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, MapPin, Clock } from "lucide-react";
 
 export async function generateMetadata({ params }) {
-  // FIX 1: Add 'await' here
   const { id } = await params; 
-  
   if (!ObjectId.isValid(id)) return { title: "Not Found" };
 
   const client = await clientPromise;
@@ -22,7 +20,6 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ServiceDetails({ params }) {
-  // FIX 2: Add 'await' here as well
   const { id } = await params; 
 
   if (!ObjectId.isValid(id)) return notFound();

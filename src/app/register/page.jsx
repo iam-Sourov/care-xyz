@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Register() {
   const { createUser, updateUserProfile } = useContext(AuthContext);
@@ -21,6 +22,7 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
@@ -38,8 +40,14 @@ export default function Register() {
     try {
       const result = await createUser(email, password);
       await updateUserProfile(name, "https://github.com/shadcn.png");
-      const userPayload = { name, email, phone, nid };
-
+      const userPayload = {
+        name,
+        email,
+        phone,
+        nid,
+        role: "user",
+        createdAt: new Date()
+      };
       const dbResponse = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,13 +55,19 @@ export default function Register() {
       });
 
       if (dbResponse.ok) {
-        alert("Registration Successful!");
+        toast("Registration Successful!");
         router.push("/");
+      } else {
+        throw new Error("Failed to save user data to database.");
       }
 
     } catch (err) {
       console.error(err);
-      setError(err.message || "Registration failed");
+      if (err.message.includes("email-already-in-use")) {
+        setError("This email is already registered.");
+      } else {
+        setError(err.message || "Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -61,10 +75,10 @@ export default function Register() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4 py-10">
-      <Card className="w-full max-w-md shadow-xl">
+      <Card className="w-full max-w-md shadow-xl border-gray-200">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create an Account</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-bold text-center text-primary">Create an Account</CardTitle>
+          <CardDescription className="text-center text-gray-500">
             Join Care.xyz to find trusted caregivers
           </CardDescription>
         </CardHeader>
@@ -72,20 +86,20 @@ export default function Register() {
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" name="name" placeholder="John Doe" required />
+              <Input id="name" name="name" placeholder="John Doe" required className="focus-visible:ring-primary" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="john@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="john@example.com" required className="focus-visible:ring-primary" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">Contact No</Label>
-                <Input id="phone" name="phone" placeholder="017..." required />
+                <Input id="phone" name="phone" placeholder="017..." required className="focus-visible:ring-primary" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nid">NID Number</Label>
-                <Input id="nid" name="nid" placeholder="National ID" required />
+                <Input id="nid" name="nid" placeholder="National ID" required className="focus-visible:ring-primary" />
               </div>
             </div>
             <div className="space-y-2">
@@ -95,17 +109,18 @@ export default function Register() {
                 name="password"
                 type="password"
                 placeholder="******"
-                required/>
+                required
+                className="focus-visible:ring-primary"/>
               <p className="text-xs text-gray-500">
                 Must contain 1 uppercase, 1 lowercase, 6+ chars.
               </p>
             </div>
             {error && (
-              <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md border border-red-200">
+              <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200 animate-in fade-in">
                 {error}
               </div>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full font-semibold" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
@@ -116,7 +131,7 @@ export default function Register() {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-gray-500">
-            Already have an account? <Link href="/login" className="text-primary hover:underline font-medium">Log in</Link>
+            Already have an account? <Link href="/login" className="text-primary hover:underline font-bold">Log in</Link>
           </div>
         </CardContent>
       </Card>
